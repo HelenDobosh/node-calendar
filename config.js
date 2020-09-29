@@ -2,7 +2,6 @@ const args = process.argv.slice(2);
 
 const config = {
   PORT: process.env.PORT,
-  ENV: undefined
 };
 
 args.forEach(item => {
