@@ -89,3 +89,43 @@ drwxr-xr-x    46 root  wheel   1.4K Dec  1  2019 share
 drwxr-xr-x     5 root  wheel   160B Oct 24  2019 standalone
 
 child process exited with code 0
+```
+
+
+## cluster-with-api.js
+
+### Expected result:
+
+```
+Master xxx is running
+Worker yyy1 started
+Worker yyy2 started
+Worker yyy3 started
+Worker yyy4 started
+Worker yyy5 started
+Worker yyy6 started
+```
+
+Run script ```call-cluster-with-api.js``` that performs 100 calls to server from ```cluster-with-api.js```. 
+
+### Expected result:
+
+```
+Worker yyy1 handled request
+Worker yyy2 handled request
+Worker yyy3 handled request
+....
+```
+
+Send SIGINT event (Crtl+C) to the cluster ```cluster-with-api.js```
+
+### Expected result:
+
+```
+Worker with pid yyy1 handled xx requests.
+Worker with pid yyy2 handled xx requests.
+Worker with pid yyy3 handled xx requests.
+Worker with pid yyy4 handled xx requests.
+Worker with pid yyy5 handled xx requests.
+Worker with pid yyy6 handled xx requests.
+```
