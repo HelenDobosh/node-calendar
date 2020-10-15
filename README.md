@@ -14,9 +14,14 @@ Current environment is dev
 ```
 
 
-## node microtasks.js
+## microtasks.js
 
-### ​Expected result:
+Run:
+```
+node microtasks.js
+``` 
+
+The expected result should be:
 
 ```
 simple log
@@ -30,7 +35,12 @@ T
 
 ## node-vs-browser.js
 
-### Expected result:
+Run:
+```
+node node-vs-browser.js
+``` 
+
+The expected result should be:
 
 ```
 timeout 1
@@ -43,7 +53,12 @@ timeout 4
 
 ## event-loop.js
 
-### Expected result:
+Run:
+```
+node event-loop.js
+``` 
+
+The expected result should be:
 ```
 next tick1
 next tick2
@@ -64,7 +79,12 @@ set immediate4
 
 ## blocking-event-loop.js
 
-### Expected result:
+Run:
+```
+node blocking-event-loop.js
+``` 
+
+The expected result should be:
 
 ```
 0-999
@@ -74,7 +94,12 @@ Timeout:
 
 ## child-process.js
 
-### Expected result:
+Run:
+```
+node child-process.js
+``` 
+
+The expected result should be:
 
 ```
 stdout: total 0
@@ -98,8 +123,7 @@ Run:
 node blocking-server-loop.js
 ```
 
-
-### Expected result:
+The expected result should be:
 ```
   Listening on port 3200
 ```
@@ -109,7 +133,8 @@ In another terminal tab, run:
 curl http://localhost:3200
 ```
 
-### Expected result:
+The expected result should be:
+
 ```
   {"message":"Hello world!"}
 ```
@@ -123,7 +148,7 @@ Run:
 node cluster-with-api.js
 ``` 
 
-### Expected result:
+The expected result should be:
 
 ```
 Master xxx is running
@@ -142,7 +167,7 @@ node call-cluster-with-api.js
 ``` 
 that performs 100 calls to server from ```cluster-with-api.js```. 
 
-### Expected result:
+The expected result should be:
 
 ```
 Worker yyy1 handled request
@@ -153,7 +178,7 @@ Worker yyy3 handled request
 
 In tab with ```cluster-with-api.js``` send SIGINT event (Crtl+C) to the cluster ```cluster-with-api.js```
 
-### Expected result:
+The expected result should be:
 
 ```
 Worker with pid yyy1 handled xx requests.
@@ -163,3 +188,20 @@ Worker with pid yyy4 handled xx requests.
 Worker with pid yyy5 handled xx requests.
 Worker with pid yyy6 handled xx requests.
 ```
+
+## fibonacci-worker-thread.js
+
+Run:
+```
+node fibonacci-worker-thread.js n
+``` 
+where's ```n``` is n-th Fibonacci number. 
+
+Example: ```node fibonacci-worker-thread.js 9``` 
+
+The expected result should be:
+```
+Fibonacci(9) = 34
+Thread exiting
+```
+
