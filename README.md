@@ -91,8 +91,37 @@ drwxr-xr-x     5 root  wheel   160B Oct 24  2019 standalone
 child process exited with code 0
 ```
 
+## blocking-server-loop.js
+
+Run:
+```
+node blocking-server-loop.js
+```
+
+
+### Expected result:
+```
+  Listening on port 3200
+```
+
+In another terminal tab, run:
+```
+curl http://localhost:3200
+```
+
+### Expected result:
+```
+  {"message":"Hello world!"}
+```
+
+Other calls to curl localhost:3000 should not return any messages.
 
 ## cluster-with-api.js
+
+Run:
+```
+node cluster-with-api.js
+``` 
 
 ### Expected result:
 
@@ -106,7 +135,12 @@ Worker yyy5 started
 Worker yyy6 started
 ```
 
-Run script ```call-cluster-with-api.js``` that performs 100 calls to server from ```cluster-with-api.js```. 
+
+In another terminal tab, run script 
+```
+node call-cluster-with-api.js
+``` 
+that performs 100 calls to server from ```cluster-with-api.js```. 
 
 ### Expected result:
 
@@ -117,7 +151,7 @@ Worker yyy3 handled request
 ....
 ```
 
-Send SIGINT event (Crtl+C) to the cluster ```cluster-with-api.js```
+In tab with ```cluster-with-api.js``` send SIGINT event (Crtl+C) to the cluster ```cluster-with-api.js```
 
 ### Expected result:
 
