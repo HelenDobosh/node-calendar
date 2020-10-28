@@ -1,37 +1,64 @@
 const express = require('express');
 const fs = require('fs');
+const bodyParser = require('body-parser');
 const app = express();
 const PORT = 3000;
 const csvFile = "events.csv";
 
-app.get('/events', async (req, res) => {
+app.use(bodyParser.json());
+
+app.get('/events', async(req, res) => {
   const {location} = req.query;
 
-  const events = await getEventsByLocation(location);
-
-  res.send(events)
+  const eventsByLocation = await getEventsByLocation(location);
+  res.send(eventsByLocation);
 });
 
-app.listen(PORT, () => {
-  console.log(`server start at port ${PORT}`);
+app.get('/events/:eventId', async (req, res) => {
+  const {eventId} = req.params;
+  const eventById = await getEventById(eventId);
+
+  res.send(eventById);
 });
 
-async function getEventsByLocation(location) {
+app.post('/events', async (req, res) => {
+  const events =  await writeEventToEventsFile(req.body);
+  res.send(events);
+});
+
+function readFile(filePath = csvFile, parseToJson = true, encoding = 'utf8') {
   return new Promise((resolve, reject) => {
-    fs.readFile(csvFile, (err, data) => {
+    fs.readFile(filePath, encoding, (err, data) => {
       if (err) {
-        throw err;
+        reject(err);
+      } else {
+        resolve(parseToJson? parseCsvToJson(data) : data);
       }
-      const fileContent = parseCsvToJson(data);
-
-      const eventsByLocation = location ? fileContent.filter(event => event.location.toLowerCase() === location.toLowerCase()) : fileContent;
-
-      console.log(eventsByLocation);
-      resolve(eventsByLocation);
     });
   });
-
 }
+
+async function getEventsByLocation(location) {
+  const fileContent = await readFile();
+  return location ? fileContent.filter(event => event.location.toLowerCase() === location.toLowerCase()) : fileContent;
+}
+
+async function getEventById(id) {
+  const fileContent = await readFile();
+  return id ? fileContent.filter(event => event.id === id) : fileContent;
+}
+
+async function writeEventToEventsFile(reqBody) {
+
+  const id = new Date().getTime();
+  let logStream = fs.createWriteStream(csvFile, {flags: 'a'});
+  const newEvent = parseJsonToCsv(reqBody);
+  newEvent.unshift(id);
+  logStream.write(`${newEvent}\n`);
+
+  logStream.end();
+}
+
 
 function parseCsvToJson(csvData) {
   const fileArr = csvData.toString()
@@ -42,35 +69,33 @@ function parseCsvToJson(csvData) {
 
   const fileData = fileArr.slice(1);
 
-  const res = fileData.map(row => {
-    const rowArr = row.split(',');
-    return rowArr.reduce((acc, item, index) => {
+  return fileData.map(row => {
+    return row.split(',').reduce((acc, item, index) => {
       acc[columnNamesArr[index]] = item;
       return acc;
     }, {})
   });
-  return res;
-
 }
 
-// {
-//    "id": "1",
-//    "title": "Craft Beer Festival",
-// },
-// {
-//    "id": "2",
-//    "title": "Craft Beer Festival",
-// },
+function parseJsonToCsv(jsonData) {
+  return Object.values(jsonData);
+}
 
 
-// Generate csv file with events data (id, title, location, date, hour, etc)​
-//
+app.listen(PORT, () => {
+  console.log(`server start at port ${PORT}`);
+});
+
+
 // Create GET /events?location=lviv endpoint which returns events from csv file in json format.
 // It should support possible filtering events by location (passed as query parameter).​
 //
 // Create GET /events/:eventId endpoint for getting some specific event by id.​
 //
 // Create POST /events endpoint for saving new event to the csv file.​
+
+
+
 //
 // Create PUT /events/:eventId endpoint for replacing specific event data in csv file.​
 //
