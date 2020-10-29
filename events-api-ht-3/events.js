@@ -11,19 +11,21 @@ app.get('/events', async(req, res) => {
   const {location} = req.query;
 
   const eventsByLocation = await getEventsByLocation(location);
+
   res.send(eventsByLocation);
 });
 
 app.get('/events/:eventId', async (req, res) => {
   const {eventId} = req.params;
+
   const eventById = await getEventById(eventId);
 
-  res.send(eventById);
+  res.json(eventById);
 });
 
 app.post('/events', async (req, res) => {
-  const events =  await writeEventToEventsFile(req.body);
-  res.send(events);
+  await writeEventToEventsFile(req.body);
+  res.sendStatus(200);
 });
 
 function readFile(filePath = csvFile, parseToJson = true, encoding = 'utf8') {
@@ -48,10 +50,11 @@ async function getEventById(id) {
   return id ? fileContent.filter(event => event.id === id) : fileContent;
 }
 
-async function writeEventToEventsFile(reqBody) {
-
+function writeEventToEventsFile(reqBody) {
   const id = new Date().getTime();
+
   let logStream = fs.createWriteStream(csvFile, {flags: 'a'});
+
   const newEvent = parseJsonToCsv(reqBody);
   newEvent.unshift(id);
   logStream.write(`${newEvent}\n`);
