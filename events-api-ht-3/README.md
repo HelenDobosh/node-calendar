@@ -42,7 +42,7 @@ The expected result should be:
 To get some specific event by id run:
 
 ```
-curl --request 'GET http://localhost:3000/events/2'
+curl --request GET 'http://localhost:3000/events/2'
 ```
 
 The expected result should be:

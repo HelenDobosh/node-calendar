@@ -6,13 +6,13 @@ const lineBreak = '\n';
 
 
 async function getEventsByLocation(location) {
-  const fileContent = await readFile();
+  const fileContent = await readFileStream();
 
   return location ? fileContent.filter(event => event.location.toLowerCase() === location.toLowerCase()) : fileContent;
 }
 
 async function getEventById(id) {
-  const fileContent = await readFile();
+  const fileContent = await readFileStream();
 
   return fileContent.filter(event => event.id === id)[0];
 }
@@ -22,33 +22,16 @@ function addNewEvent(reqBody) {
 
   const id = new Date().getTime();
 
-  const newEvent = Object.values(reqBody);
+  const {title, location, date, guests} = reqBody;
+  const newEvent = [id, title, location, date, guests];
 
-  newEvent.unshift(id);
   logStream.write(`${newEvent}${lineBreak}`);
   logStream.end();
 }
 
 
-function parseCsvToJson(csvData) {
-  const fileArr = csvData.toString()
-    .split(`${lineBreak}`)
-    .filter(str => str.length > 0);
-
-  const columnNamesArr = fileArr[0].split(',');
-
-  const fileData = fileArr.slice(1);
-
-  return fileData.map(row => {
-    return row.split(',').reduce((acc, item, index) => {
-      acc[columnNamesArr[index]] = item;
-      return acc;
-    }, {})
-  });
-}
-
 async function updateEvent(id, events, reqBody) {
-  const eventToUpdate = { id, ...reqBody };
+  const eventToUpdate = {id, ...reqBody};
 
   const updatedEvents = events.map(event =>
     id === event.id ? {...event, ...eventToUpdate} : event,
@@ -74,7 +57,7 @@ function getEventsBatch(res) {
   const fileStream = fs.createReadStream(csvFile).pipe(
     new Transform({
       transform(chunk, encoding, callback) {
-        const newChunk = parseCsvToJson(chunk.toString());
+        const newChunk = parseCsvToJson(chunk);
 
         callback(null, JSON.stringify(newChunk));
       }
@@ -84,23 +67,42 @@ function getEventsBatch(res) {
   fileStream.pipe(res);
 }
 
-
-function readFile(filePath = csvFile, parseToJson = true, encoding = 'utf8') {
+async function readFileStream() {
   return new Promise((resolve, reject) => {
-    fs.readFile(filePath, encoding, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(parseToJson? parseCsvToJson(data) : data);
-      }
+
+    const readStream = fs.createReadStream(csvFile);
+
+    readStream.on('data', row => {
+      resolve(parseCsvToJson(row));
     });
+
+    readStream.on('error', err => {
+      reject(err);
+    });
+  });
+}
+
+function parseCsvToJson(csvData) {
+  const fileArr = csvData.toString()
+    .split(lineBreak)
+    .filter(str => str.length > 0);
+
+  const columnNamesArr = fileArr[0].split(',');
+
+  const fileData = fileArr.slice(1);
+
+  return fileData.map(row => {
+    return row.split(',').reduce((acc, item, index) => {
+      acc[columnNamesArr[index]] = item;
+      return acc;
+    }, {})
   });
 }
 
 function parseJsonToCsv(events) {
   const headers = Object.keys(events[0]);
 
-  const csvEvents = events.map(item => `${item.id},${item.title},${item.location},${item.date},${item.guests}`,);
+  const csvEvents = events.map(item => `${item.id},${item.title},${item.location},${item.date},${item.guests}`);
 
   return `${headers}${lineBreak}${csvEvents.join(lineBreak)}`;
 }
@@ -110,5 +112,5 @@ module.exports.getEventsByLocation = getEventsByLocation;
 module.exports.getEventById = getEventById;
 module.exports.addNewEvent = addNewEvent;
 module.exports.updateEvent = updateEvent;
-module.exports.readFile = readFile;
+module.exports.readFileStream = readFileStream;
 module.exports.getEventsBatch = getEventsBatch;

@@ -7,7 +7,7 @@ const PORT = 3000;
 
 
 const {
-  readFile,
+  readFileStream,
   getEventsByLocation,
   getEventById,
   addNewEvent,
@@ -17,7 +17,7 @@ const {
 
 app.use(bodyParser.json());
 
-app.get('/events', async(req, res) => {
+app.get('/events', async (req, res) => {
   const {location} = req.query;
 
   const eventsByLocation = await getEventsByLocation(location);
@@ -45,7 +45,7 @@ app.post('/events', async (req, res) => {
 app.put('/events/:eventId', async (req, res) => {
   const {eventId} = req.params;
 
-  const events = await readFile();
+  const events = await readFileStream();
 
   const event = events.find(event => event.id === eventId);
 
